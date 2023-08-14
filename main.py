@@ -10,6 +10,7 @@ writing, software distributed under the License is distributed on an "AS
 IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied.
 """
+
 import os.path
 import datetime
 from datetime import date
@@ -17,10 +18,11 @@ import csv
 import requests
 import meraki
 import config
-import os.path 
+import os.path
+import g_functions as gf 
 
 
-def append_column(networks,csv_file,custom_end_time):
+def append_column(csv_file,custom_end_time):
     if custom_end_time == None:
         custom_end_time = datetime.datetime.now()
     dashboard = meraki.DashboardAPI(api_key=config.meraki_api_key, print_console=False,output_log=False)
@@ -84,14 +86,13 @@ def get_unique_clients(network_id,end_time=None):
 
     return len(unique_clients), total_count
 
-file_exists = os.path.exists('client_counts.csv')
+file_exists = os.path.exists(config.CLIENT_SECRET_FILE)
 
 # Replace YOUR_API_KEY and YOUR_NETWORK_ID with your Meraki API key and network ID, respectively.
 api_key = config.meraki_api_key
 
 # Specifying custom end_time
-#custom_end_time = None
-custom_end_time = datetime.datetime(2023, 8, 1)
+custom_end_time = config.custom_end_time
 
 
 # Define the Meraki API endpoints to query network information.
@@ -112,7 +113,7 @@ if file_exists == False:
     if custom_end_time == None:
         custom_end_time = datetime.datetime.now()
 
-    with open('client_counts.csv', 'w', newline='') as csvfile:
+    with open(config.file_path, 'w', newline='') as csvfile:
         fieldnames = ['Network Name', 'Network ID',custom_end_time.strftime("%d/%m/%Y")]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -124,7 +125,10 @@ if file_exists == False:
             else:
                 print(f"Failed to retrieve data for network '{network['name']}'")
     print("Data saved to client_counts.csv")
+    if config.G_DRIVE:
+        gf.delete_and_upload_file('client_counts.csv',config.google_folder_id)
 else:
-    append_column(networks,config.file_path,custom_end_time)
+    append_column(config.file_path,custom_end_time)
     print('Column appended successfully!')
-    
+    if config.G_DRIVE:
+        gf.delete_and_upload_file('client_counts.csv',config.google_folder_id)

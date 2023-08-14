@@ -11,5 +11,21 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied.
 """
 
+import datetime
+
+# Specifying custom end_time will default to current day if None
+
+#custom_end_time = None
+custom_end_time = datetime.datetime(2023, 8, 1) # August 1 2023
+
 meraki_api_key = ''
 org_id = ''
+
+
+# GOOGLE DRIVE INTEGRATION toggle True or False
+G_DRIVE = True
+
+# Follow README steps to create credentials json file
+CLIENT_SECRET_FILE = 'client_secret.json'   # The path to the client secret json file you downloaded.
+file_path = 'client_counts.csv'  # Replace with the path to the new CSV file you want to upload
+google_folder_id = ''
